@@ -122,7 +122,7 @@ public class SAP {
         w.add(6);
         w.add(16);
         w.add(17);
-        System.out.println(sap.length(v, w));
+        System.out.println(sap.length(v, v));
         System.out.println(sap.ancestor(v, w));
     }
 }
