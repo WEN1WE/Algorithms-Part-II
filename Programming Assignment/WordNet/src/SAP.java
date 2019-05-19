@@ -1,6 +1,6 @@
 /**
  * @author wen
- * @data 2019/5/19
+ * data: 2019/5/19
  */
 
 import edu.princeton.cs.algs4.Digraph;
@@ -12,6 +12,9 @@ public class SAP {
     private final Digraph G;
 
     public SAP(Digraph G) {
+        if (G == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
         this.G = new Digraph(G);
     }
 
@@ -20,8 +23,9 @@ public class SAP {
      * Returns -1 if no such path.
      */
     public int length(int v, int w) {
-        AncestorBFS bfs = new AncestorBFS(G, v, w);
-        return bfs.length;
+        validateVertex(v);
+        validateVertex(w);
+        return getSAP(G, v, w)[0];
     }
 
     /**
@@ -29,8 +33,9 @@ public class SAP {
      * Returns -1 if no such path.
      */
     public int ancestor(int v, int w) {
-        AncestorBFS bfs = new AncestorBFS(G, v, w);
-        return bfs.ancestor;
+        validateVertex(v);
+        validateVertex(w);
+        return getSAP(G, v, w)[1];
     }
 
     /**
@@ -38,8 +43,12 @@ public class SAP {
      * Returns -1 if no such path.
      */
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        AncestorBFS bfs = new AncestorBFS(G, v, w);
-        return bfs.length;
+        if (v == null || w == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+        validateVertexs(v);
+        validateVertexs(w);
+        return getSAP(G, v, w)[0];
     }
 
     /**
@@ -47,53 +56,62 @@ public class SAP {
      * -1 if no such path.
      */
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        AncestorBFS bfs = new AncestorBFS(G, v, w);
-        return bfs.ancestor;
+        if (v == null || w == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+        validateVertexs(v);
+        validateVertexs(w);
+        return getSAP(G, v, w)[1];
     }
 
-    private static class AncestorBFS {
-        private int length = -1;
-        private int ancestor = -1;
+    private static int[] getSAP(Digraph G, int v, int w) {
+        return getSAP(G, toIterable(v), toIterable(w));
+    }
+    private static int[] getSAP(Digraph G, Iterable<Integer> v, Iterable<Integer> w) {
+        int length = -1;
+        int ancestor = -1;
+        int[] result = new int[2];
+        int nV = G.V();
+        int total;
+        BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(G, v);
+        BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(G, w);
 
-        private AncestorBFS(Digraph G, int v, int w) {
-            this(G, toIterable(v), toIterable(w));
-        }
-
-        private AncestorBFS(Digraph G, Iterable<Integer> v, Iterable<Integer> w) {
-            int nV = G.V();
-            int total;
-            BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(G, v);
-            BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(G, w);
-
-            for (int i = 0; i < nV; i++) {
-                if (bfsV.hasPathTo(i) && bfsW.hasPathTo(i)) {
-                    total = bfsV.distTo(i) + bfsW.distTo(i);
-                    if (length == -1 || length > total) {
-                        length = total;
-                        ancestor = i;
-                    }
+        for (int i = 0; i < nV; i++) {
+            if (bfsV.hasPathTo(i) && bfsW.hasPathTo(i)) {
+                total = bfsV.distTo(i) + bfsW.distTo(i);
+                if (length == -1 || length > total) {
+                    length = total;
+                    ancestor = i;
                 }
             }
         }
+        result[0] = length;
+        result[1] = ancestor;
+        return result;
+    }
 
-        private static Iterable<Integer> toIterable(int i) {
-            ArrayList<Integer> array = new ArrayList<>();
-            array.add(i);
-            return array;
+    private static Iterable<Integer> toIterable(int i) {
+        ArrayList<Integer> array = new ArrayList<>();
+        array.add(i);
+        return array;
+    }
+
+    private void validateVertex(int v) {
+        if (v < 0 || v >= G.V()) {
+            throw new java.lang.IllegalArgumentException();
         }
+    }
 
-        private int length() {
-            return length;
-        }
-
-        private int ancestor() {
-            return ancestor;
+    private void validateVertexs(Iterable<Integer> vertexs) {
+        for (Integer v : vertexs) {
+            if (v == null || v < 0 || v >= G.V()) {
+                throw new java.lang.IllegalArgumentException();
+            }
         }
     }
 
     public static void main(String[] args) {
         In in = new In(args[0]);
-
         Digraph G = new Digraph(in);
         SAP sap = new SAP(G);
         ArrayList<Integer> v = new ArrayList<>();
