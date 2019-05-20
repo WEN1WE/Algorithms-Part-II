@@ -20,14 +20,14 @@ public class Outcast {
         if (nouns == null) {
             throw new java.lang.IllegalArgumentException();
         }
-        int sum = 0;
         int maxDistance = 0;
         String outcast = null;
         for (String noun : nouns) {
+            int sum = 0;
             for (String s : nouns) {
                 sum += wordnet.distance(noun, s);
             }
-            if (sum > maxDistance) {
+            if (sum >= maxDistance) {
                 maxDistance = sum;
                 outcast = noun;
             }
@@ -42,14 +42,7 @@ public class Outcast {
         In in = new In(args[2]);
         String[] nouns = in.readAllStrings();
         System.out.println((outcast.outcast(nouns)));
-
-        for (int t = 2; t < args.length; t++) {
-            In in = new In(args[t]);
-            String[] nouns = in.readAllStrings();
-            StdOut.println(args[t] + ": " + outcast.outcast(nouns));
-        }
     }
 
      */
-
 }

@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class WordNet {
     private final HashMap<Integer, String> id2Synsets;
     private final HashMap<String, Bag<Integer>> word2Id;
-    private SAP sap;
+    private final SAP sap;
 
     /**
      * constructor takes the name of the two input files
