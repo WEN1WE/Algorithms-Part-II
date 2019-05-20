@@ -1,5 +1,5 @@
 ### Programming Assignment 1: WordNet
-##### Tips:
+#### Tips:
 - Use HashMap to parse file.
 - A noun may appear in more than one synset
 - Use DirectedCycle to check DAG.
