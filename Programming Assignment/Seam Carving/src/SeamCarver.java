@@ -1,17 +1,19 @@
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.StdOut;
-
 import java.awt.Color;
 
 
 public class SeamCarver {
     private Picture picture;
-    private double[][] energy;
+    private final double[][] energy;
 
     /**
      * create a seam carver object based on the given picture.
      */
     public SeamCarver(Picture picture) {
+        if (picture == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
         this.picture = new Picture(picture);
         energy = new double[width()][height()];
 
@@ -51,25 +53,29 @@ public class SeamCarver {
      * energy of pixel at column x and row y.
      */
     public double energy(int x, int y) {
+        if (!isValid(x, y)) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
         return energy[x][y];
     }
 
     private double xGradient(int x, int y) {
         Color left = picture.get(x - 1, y);
         Color right = picture.get(x + 1, y);
-        int Rx = left.getRed() - right.getRed();
-        int Gx = left.getGreen() - right.getGreen();
-        int Bx = left.getBlue() - right.getBlue();
-        return Rx * Rx + Gx * Gx + Bx * Bx;
+        int dR = left.getRed() - right.getRed();
+        int dG = left.getGreen() - right.getGreen();
+        int dB = left.getBlue() - right.getBlue();
+        return dR * dR + dG * dG + dB * dB;
     }
 
     private double yGradient(int x, int y) {
         Color up = picture.get(x, y - 1);
         Color down = picture.get(x, y + 1);
-        int Ry = up.getRed() - down.getRed();
-        int Gy = up.getGreen() - down.getGreen();
-        int By = up.getBlue() - down.getBlue();
-        return Ry * Ry + Gy * Gy + By * By;
+        int dR = up.getRed() - down.getRed();
+        int dG = up.getGreen() - down.getGreen();
+        int dB = up.getBlue() - down.getBlue();
+        return dR * dR + dG * dG + dB * dB;
     }
 
     /**
@@ -178,28 +184,67 @@ public class SeamCarver {
 
     /** remove horizontal seam from current picture. */
     public void removeHorizontalSeam(int[] seam) {
-        int[] horizontalSeam = findHorizontalSeam();
-        Picture newPicture = new Picture(width(), height() - 1);
-        for (int x = 0; x < width(); x++) {
-            for (int y = 0; y < height() - 1; y++) {
-                newPicture.set(x, y, picture.get(x, y));
-                if (y == horizontalSeam[x]) {
-                    continue;
-                }
-                newPicture.set(x, y, picture.get(x, y));
+        if (height() <= 1) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        if (seam == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        for (int y : seam) {
+            if (y < 0 || y >= height()) {
+                throw new java.lang.IllegalArgumentException();
             }
         }
+
+        Picture newPicture = new Picture(width(), height() - 1);
+        for (int x = 0; x < width(); x++) {
+            int sign = 0;
+            for (int y = 0; y < height() - 1; y++) {
+                if (y == seam[x]) {
+                    sign = 1;
+                }
+                if (sign == 0) {
+                    newPicture.set(x, y, picture.get(x, y));
+                } else {
+                    newPicture.set(x, y, picture.get(x, y + 1));
+                }
+            }
+        }
+        picture = newPicture;
     }
 
     /** remove vertical seam from current picture. */
     public void removeVerticalSeam(int[] seam) {
+        if (width() <= 1) {
+            throw new java.lang.IllegalArgumentException();
+        }
 
+        if (seam == null) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        for (int x : seam) {
+            if (x < 0 || x >= width()) {
+                throw new java.lang.IllegalArgumentException();
+            }
+        }
+
+        Picture newPicture = new Picture(width() - 1, height());
+        for (int y = 0; y < height(); y++) {
+            int sign = 0;
+            for (int x = 0; x < width() - 1; x++) {
+                if (x == seam[y]) {
+                    sign = 1;
+                }
+                if (sign == 0) {
+                    newPicture.set(x, y, picture.get(x, y));
+                } else {
+                    newPicture.set(x, y, picture.get(x + 1, y));
+                }
+            }
+        }
+        picture = newPicture;
     }
-
-
-
-    public static void main(String[] args) {
-        StdOut.printf("%9.0f ", Math.sqrt(52024));
-    }
-
 }
