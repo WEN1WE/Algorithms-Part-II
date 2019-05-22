@@ -31,12 +31,12 @@ public class ResizeDemo {
 
         Stopwatch sw = new Stopwatch();
 
-        /*
+
         for (int i = 0; i < removeRows; i++) {
             int[] horizontalSeam = sc.findHorizontalSeam();
             sc.removeHorizontalSeam(horizontalSeam);
         }
-        */
+
         for (int i = 0; i < removeColumns; i++) {
             int[] verticalSeam = sc.findVerticalSeam();
             sc.removeVerticalSeam(verticalSeam);
