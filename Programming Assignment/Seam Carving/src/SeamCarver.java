@@ -20,17 +20,9 @@ public class SeamCarver {
         energy = calcEnergy();
     }
 
-    private int[][] getColor(Picture picture) {
-        int[][] color = new int[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                color[x][y] = picture.getRGB(x, y);
-            }
-        }
-        return color;
-    }
-
-    /** current picture. */
+    /**
+     * current picture.
+     */
     public Picture picture() {
         Picture picture = new Picture(width, height);
         for (int x = 0; x < width; x++) {
@@ -146,27 +138,9 @@ public class SeamCarver {
         return horizontalSeam;
     }
 
-    private void relaxX(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
-        if (isValid(nextX, nextY)) {
-            double total = distTo[x][y] + energy[nextX][nextY];
-            if (total < distTo[nextX][nextY]) {
-                edgeTo[nextX][nextY] = x;
-                distTo[nextX][nextY] = total;
-            }
-        }
-    }
-
-    private void relaxY(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
-        if (isValid(nextX, nextY)) {
-            double total = distTo[x][y] + energy[nextX][nextY];
-            if (total < distTo[nextX][nextY]) {
-                edgeTo[nextX][nextY] = y;
-                distTo[nextX][nextY] = total;
-            }
-        }
-    }
-
-    /** remove vertical seam from current picture. */
+    /**
+     * remove vertical seam from current picture.
+     */
     public void removeVerticalSeam(int[] seam) {
         validateSeam(seam, height, width);
 
@@ -191,7 +165,9 @@ public class SeamCarver {
         energy = calcEnergy();
     }
 
-    /** remove horizontal seam from current picture. */
+    /**
+     * remove horizontal seam from current picture.
+     */
     public void removeHorizontalSeam(int[] seam) {
         validateSeam(seam, width, height);
 
@@ -212,6 +188,16 @@ public class SeamCarver {
         }
         color = newColor;
         energy = calcEnergy();
+    }
+
+    private int[][] getColor(Picture picture) {
+        int[][] color = new int[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                color[x][y] = picture.getRGB(x, y);
+            }
+        }
+        return color;
     }
 
     private double[][] calcEnergy() {
@@ -244,6 +230,27 @@ public class SeamCarver {
         return Math.sqrt(total);
     }
 
+
+    private void relaxX(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
+        if (isValid(nextX, nextY)) {
+            double total = distTo[x][y] + energy[nextX][nextY];
+            if (total < distTo[nextX][nextY]) {
+                edgeTo[nextX][nextY] = x;
+                distTo[nextX][nextY] = total;
+            }
+        }
+    }
+
+    private void relaxY(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
+        if (isValid(nextX, nextY)) {
+            double total = distTo[x][y] + energy[nextX][nextY];
+            if (total < distTo[nextX][nextY]) {
+                edgeTo[nextX][nextY] = y;
+                distTo[nextX][nextY] = total;
+            }
+        }
+    }
+
     private boolean isValid(int x, int y) {
         return x >= 0 && x < width && y >= 0 && y < height;
     }
@@ -271,10 +278,10 @@ public class SeamCarver {
     }
 
     private static int getGreen(int rgb) {
-        return (rgb >>  8) & 0xFF;
+        return (rgb >> 8) & 0xFF;
     }
 
     private static int getBlue(int rgb) {
-        return (rgb >>  0) & 0xFF;
+        return (rgb >> 0) & 0xFF;
     }
 }
