@@ -1,10 +1,9 @@
 import edu.princeton.cs.algs4.Picture;
 import java.awt.Color;
 
-
 public class SeamCarver {
     private Picture picture;
-    private final double[][] energy;
+    private double[][] energy;
 
     /**
      * create a seam carver object based on the given picture.
@@ -15,17 +14,43 @@ public class SeamCarver {
         }
 
         this.picture = new Picture(picture);
-        energy = new double[width()][height()];
+        energy = calcEnergy(picture);
+    }
 
-        for (int x = 0; x < width(); x++) {
-            for (int y = 0; y < height(); y++) {
-                if (x == 0 || x == width() - 1 || y == 0 || y == height() - 1) {
+    private static double[][] calcEnergy(Picture picture) {
+        int width = picture.width();
+        int height = picture.height();
+        double[][] energy = new double[width][height];
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (x == 0 || x == width - 1 || y == 0 || y == height - 1) {
                     energy[x][y] = 1000;
                 } else {
-                    energy[x][y] = Math.sqrt(xGradient(x, y) + yGradient(x, y));
+                    energy[x][y] = Math.sqrt(xGradient(picture, x, y) + yGradient(picture, x, y));
                 }
             }
         }
+        return energy;
+    }
+
+    private static double xGradient(Picture picture, int x, int y) {
+        Color left = picture.get(x - 1, y);
+        Color right = picture.get(x + 1, y);
+        int dR = left.getRed() - right.getRed();
+        int dG = left.getGreen() - right.getGreen();
+        int dB = left.getBlue() - right.getBlue();
+        return dR * dR + dG * dG + dB * dB;
+    }
+
+
+    private static double yGradient(Picture picture, int x, int y) {
+        Color up = picture.get(x, y - 1);
+        Color down = picture.get(x, y + 1);
+        int dR = up.getRed() - down.getRed();
+        int dG = up.getGreen() - down.getGreen();
+        int dB = up.getBlue() - down.getBlue();
+        return dR * dR + dG * dG + dB * dB;
     }
 
     /**
@@ -58,24 +83,6 @@ public class SeamCarver {
         }
 
         return energy[x][y];
-    }
-
-    private double xGradient(int x, int y) {
-        Color left = picture.get(x - 1, y);
-        Color right = picture.get(x + 1, y);
-        int dR = left.getRed() - right.getRed();
-        int dG = left.getGreen() - right.getGreen();
-        int dB = left.getBlue() - right.getBlue();
-        return dR * dR + dG * dG + dB * dB;
-    }
-
-    private double yGradient(int x, int y) {
-        Color up = picture.get(x, y - 1);
-        Color down = picture.get(x, y + 1);
-        int dR = up.getRed() - down.getRed();
-        int dG = up.getGreen() - down.getGreen();
-        int dB = up.getBlue() - down.getBlue();
-        return dR * dR + dG * dG + dB * dB;
     }
 
     /**
@@ -192,9 +199,19 @@ public class SeamCarver {
             throw new java.lang.IllegalArgumentException();
         }
 
-        for (int y : seam) {
-            if (y < 0 || y >= height()) {
+        if (seam.length != width()) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        for (int i = 0; i < seam.length; i++) {
+            if (seam[i] < 0 || seam[i] >= height()) {
                 throw new java.lang.IllegalArgumentException();
+            }
+
+            if (i < seam.length - 1) {
+                if (Math.abs(seam[i] - seam[i + 1]) > 1) {
+                    throw new java.lang.IllegalArgumentException();
+                }
             }
         }
 
@@ -213,7 +230,10 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        energy = calcEnergy(picture);
     }
+
+
 
     /** remove vertical seam from current picture. */
     public void removeVerticalSeam(int[] seam) {
@@ -225,9 +245,19 @@ public class SeamCarver {
             throw new java.lang.IllegalArgumentException();
         }
 
-        for (int x : seam) {
-            if (x < 0 || x >= width()) {
+        if (seam.length != height()) {
+            throw new java.lang.IllegalArgumentException();
+        }
+
+        for (int i = 0; i < seam.length; i++) {
+            if (seam[i] < 0 || seam[i] >= width()) {
                 throw new java.lang.IllegalArgumentException();
+            }
+
+            if (i < seam.length - 1) {
+                if (Math.abs(seam[i] - seam[i + 1]) > 1) {
+                    throw new java.lang.IllegalArgumentException();
+                }
             }
         }
 
@@ -246,5 +276,6 @@ public class SeamCarver {
             }
         }
         picture = newPicture;
+        energy = calcEnergy(newPicture);
     }
 }
