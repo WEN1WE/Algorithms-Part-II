@@ -146,6 +146,16 @@ public class SeamCarver {
 
         width = width - 1;
         int[][] newColor = new int[width][height];
+        double[][] newEnergy = new double[width][height];
+        for (int y = 0; y < height; y++) {
+            int sign = 0;
+            for (int x = 0; x < width; x++) {
+                if (x == seam[y]) {
+                    sign = 1;
+                }
+                newColor[x][y] = color[x + sign][y];
+            }
+        }
 
         for (int y = 0; y < height; y++) {
             int sign = 0;
@@ -153,16 +163,16 @@ public class SeamCarver {
                 if (x == seam[y]) {
                     sign = 1;
                 }
-                if (sign == 0) {
-                    newColor[x][y] = color[x][y];
+                if (x < seam[y] - 1 || x > seam[y]) {
+                    newEnergy[x][y] = energy[x + sign][y];
                 } else {
-                    newColor[x][y] = color[x + 1][y];
+                    newEnergy[x][y] = pixelEnergy(x, y);
                 }
             }
         }
 
         color = newColor;
-        energy = calcEnergy();
+        energy = newEnergy;
     }
 
     /**
@@ -173,21 +183,32 @@ public class SeamCarver {
 
         height = height - 1;
         int[][] newColor = new int[width][height];
+        double[][] newEnergy = new double[width][height];
         for (int x = 0; x < width; x++) {
             int sign = 0;
             for (int y = 0; y < height; y++) {
                 if (y == seam[x]) {
                     sign = 1;
                 }
-                if (sign == 0) {
-                    newColor[x][y] = color[x][y];
+                newColor[x][y] = color[x][y + sign];
+            }
+        }
+
+        for (int x = 0; x < width; x++) {
+            int sign = 0;
+            for (int y = 0; y < height; y++) {
+                if (y == seam[x]) {
+                    sign = 1;
+                }
+                if (y < seam[x] - 1 || y > seam[x]) {
+                    newEnergy[x][y] = energy[x][y + sign];
                 } else {
-                    newColor[x][y] = color[x][y + 1];
+                    newEnergy[x][y] = pixelEnergy(x, y);
                 }
             }
         }
         color = newColor;
-        energy = calcEnergy();
+        energy = newEnergy;
     }
 
     private int[][] getColor(Picture picture) {
@@ -205,17 +226,16 @@ public class SeamCarver {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (x == 0 || x == width - 1 || y == 0 || y == height - 1) {
-                    energy[x][y] = 1000;
-                } else {
-                    energy[x][y] = pixelEnergy(x, y);
-                }
+                energy[x][y] = pixelEnergy(x, y);
             }
         }
         return energy;
     }
 
     private double pixelEnergy(int x, int y) {
+        if (x == 0 || x == width - 1 || y == 0 || y == height - 1) {
+            return 1000;
+        }
         double total = 0;
         int left = color[x - 1][y];
         int right = color[x + 1][y];
