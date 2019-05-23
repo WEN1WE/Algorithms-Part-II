@@ -50,7 +50,7 @@ public class ResizeDemo {
         StdOut.println("Resizing time: " + sw.elapsedTime() + " seconds.");
 
 
-        //inputImg.show();
+        inputImg.show();
         outputImg.show();
     }
     

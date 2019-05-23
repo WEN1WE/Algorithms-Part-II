@@ -2,6 +2,8 @@ import edu.princeton.cs.algs4.Picture;
 import java.lang.IllegalArgumentException;
 
 public class SeamCarver {
+    private static final boolean HORIZONTAL = true;
+    private static final boolean VERTICAL = false;
     private double[][] energy;
     private int[][] color;
     private int width;
@@ -16,8 +18,19 @@ public class SeamCarver {
         }
         width = picture.width();
         height = picture.height();
-        color = getColor(picture);
-        energy = calcEnergy();
+        color = new int[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                color[x][y] = picture.getRGB(x, y);
+            }
+        }
+
+        energy = new double[width][height];
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                energy[x][y] = pixelEnergy(x, y);
+            }
+        }
     }
 
     /**
@@ -78,9 +91,9 @@ public class SeamCarver {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                relaxX(distTo, edgeTo, x, y, x - 1, y + 1);
-                relaxX(distTo, edgeTo, x, y, x, y + 1);
-                relaxX(distTo, edgeTo, x, y, x + 1, y + 1);
+                relax(distTo, edgeTo, x, y, x - 1, y + 1, VERTICAL);
+                relax(distTo, edgeTo, x, y, x, y + 1, VERTICAL);
+                relax(distTo, edgeTo, x, y, x + 1, y + 1, VERTICAL);
             }
         }
 
@@ -118,9 +131,9 @@ public class SeamCarver {
 
         for (int x = 0; x < width(); x++) {
             for (int y = 0; y < height(); y++) {
-                relaxY(distTo, edgeTo, x, y, x + 1, y - 1);
-                relaxY(distTo, edgeTo, x, y, x + 1, y);
-                relaxY(distTo, edgeTo, x, y, x + 1, y + 1);
+                relax(distTo, edgeTo, x, y, x + 1, y - 1, HORIZONTAL);
+                relax(distTo, edgeTo, x, y, x + 1, y, HORIZONTAL);
+                relax(distTo, edgeTo, x, y, x + 1, y + 1, HORIZONTAL);
             }
         }
 
@@ -146,7 +159,7 @@ public class SeamCarver {
 
         width = width - 1;
         int[][] newColor = new int[width][height];
-
+        double[][] newEnergy = new double[width][height];
         for (int y = 0; y < height; y++) {
             int sign = 0;
             for (int x = 0; x < width; x++) {
@@ -156,9 +169,24 @@ public class SeamCarver {
                 newColor[x][y] = color[x + sign][y];
             }
         }
-
         color = newColor;
-        energy = calcEnergy();
+
+        for (int y = 0; y < height; y++) {
+            int sign = 0;
+            for (int x = 0; x < width; x++) {
+                if (x == seam[y]) {
+                    sign = 1;
+                }
+                if (x == seam[y] - 1 || x == seam[y]) {
+                    newEnergy[x][y] = pixelEnergy(x, y);
+                } else {
+                    newEnergy[x][y] = energy[x + sign][y];
+
+                }
+            }
+        }
+
+        energy = newEnergy;
     }
 
     /**
@@ -169,6 +197,7 @@ public class SeamCarver {
 
         height = height - 1;
         int[][] newColor = new int[width][height];
+        double[][] newEnergy = new double[width][height];
         for (int x = 0; x < width; x++) {
             int sign = 0;
             for (int y = 0; y < height; y++) {
@@ -179,28 +208,21 @@ public class SeamCarver {
             }
         }
         color = newColor;
-        energy = calcEnergy();
-    }
-
-    private int[][] getColor(Picture picture) {
-        int[][] color = new int[width][height];
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                color[x][y] = picture.getRGB(x, y);
-            }
-        }
-        return color;
-    }
-
-    private double[][] calcEnergy() {
-        double[][] energy = new double[width][height];
 
         for (int x = 0; x < width; x++) {
+            int sign = 0;
             for (int y = 0; y < height; y++) {
-                energy[x][y] = pixelEnergy(x, y);
+                if (y == seam[x]) {
+                    sign = 1;
+                }
+                if (y == seam[x] - 1 || y == seam[x]) {
+                    newEnergy[x][y] = pixelEnergy(x, y);
+                } else {
+                    newEnergy[x][y] = energy[x][y + sign];
+                }
             }
         }
-        return energy;
+        energy = newEnergy;
     }
 
     private double pixelEnergy(int x, int y) {
@@ -221,22 +243,14 @@ public class SeamCarver {
         return Math.sqrt(total);
     }
 
-
-    private void relaxX(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
+    private void relax(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY, boolean direction) {
         if (isValid(nextX, nextY)) {
             double total = distTo[x][y] + energy[nextX][nextY];
             if (total < distTo[nextX][nextY]) {
-                edgeTo[nextX][nextY] = x;
-                distTo[nextX][nextY] = total;
-            }
-        }
-    }
-
-    private void relaxY(double[][] distTo, int[][] edgeTo, int x, int y, int nextX, int nextY) {
-        if (isValid(nextX, nextY)) {
-            double total = distTo[x][y] + energy[nextX][nextY];
-            if (total < distTo[nextX][nextY]) {
-                edgeTo[nextX][nextY] = y;
+                if (direction == VERTICAL)
+                    edgeTo[nextX][nextY] = x;
+                else
+                    edgeTo[nextX][nextY] = y;
                 distTo[nextX][nextY] = total;
             }
         }
@@ -248,17 +262,17 @@ public class SeamCarver {
 
     private static void validateSeam(int[] seam, int length, int range) {
         if (seam == null || range <= 1 || seam.length != length) {
-            throw new java.lang.IllegalArgumentException();
+            throw new IllegalArgumentException();
         }
 
         for (int i = 0; i < seam.length; i++) {
             if (seam[i] < 0 || seam[i] >= range) {
-                throw new java.lang.IllegalArgumentException();
+                throw new IllegalArgumentException();
             }
 
             if (i < seam.length - 1) {
                 if (Math.abs(seam[i] - seam[i + 1]) > 1) {
-                    throw new java.lang.IllegalArgumentException();
+                    throw new IllegalArgumentException();
                 }
             }
         }
