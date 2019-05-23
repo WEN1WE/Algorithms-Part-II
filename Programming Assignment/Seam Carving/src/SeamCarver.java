@@ -125,7 +125,7 @@ public class SeamCarver {
         int seamEnd = 0;
 
         for (int x = 0; x < width(); x++) {
-            for (int y = 0; y < height(); y++) {
+            for (int y = 0; y < height; y++) {
                 if (x == 0) {
                     distTo[x][y] = 1000;
                 } else {
@@ -142,14 +142,14 @@ public class SeamCarver {
             }
         }
 
-        for (int y = 0; y < height(); y++) {
-            if (distTo[width() - 1][seamEnd] > distTo[width() - 1][y]) {
+        for (int y = 0; y < height; y++) {
+            if (distTo[width - 1][seamEnd] > distTo[width - 1][y]) {
                 seamEnd = y;
             }
         }
 
-        horizontalSeam[width() - 1] = seamEnd;
-        for (int x = width() - 1; x > 0; x--) {
+        horizontalSeam[width - 1] = seamEnd;
+        for (int x = width - 1; x > 0; x--) {
             horizontalSeam[x - 1] = edgeTo[x][horizontalSeam[x]];
         }
 
