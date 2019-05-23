@@ -1,3 +1,8 @@
+/**
+ * @author wen
+ * data: 2019/5/23
+ */
+
 import edu.princeton.cs.algs4.Picture;
 import java.lang.IllegalArgumentException;
 
@@ -114,9 +119,9 @@ public class SeamCarver {
      * sequence of indices for horizontal seam.
      */
     public int[] findHorizontalSeam() {
-        double[][] distTo = new double[width()][height()];
-        int[][] edgeTo = new int[width()][height()];
-        int[] horizontalSeam = new int[width()];
+        double[][] distTo = new double[width][height];
+        int[][] edgeTo = new int[width][height];
+        int[] horizontalSeam = new int[width];
         int seamEnd = 0;
 
         for (int x = 0; x < width(); x++) {
