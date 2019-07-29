@@ -11,3 +11,6 @@
 - It's not a good idea to transpose the Picture or int[][].(Hard to fix consecutive horizontal seam removals)
 - Creating Color objects can be a bottleneck, so use int[][] to store picture.(32-bit int  encodes the color)
 - Cache energy array.
+
+### Programming Assignment 3: Baseball Elimination
+#### I do not really understand why this proble can be solved by Maximum Flow and Minimun Cut.
